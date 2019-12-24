@@ -14,7 +14,7 @@ jobs:
           - nightly
         include:
         - toolchain: x86_64-unknown-linux-gnu
-          os: ubuntu-latest
+          os: debian-latest
 
     name: ${{ matrix.version }} - ${{ matrix.toolchain }}
     runs-on: ${{ matrix.os }}
