@@ -1,17 +1,18 @@
-use serde::{
-    de,
-    de::{MapAccess, SeqAccess, Unexpected, Visitor},
-    ser::{SerializeStruct, SerializeTuple},
-    {Deserialize, Deserializer, Serialize, Serializer},
-};
 use std::collections::HashMap;
 use std::error::Error;
-use std::fmt::Result as FmtResult;
 use std::fmt::{Display, Formatter};
+use std::fmt::Result as FmtResult;
 use std::result::Result as StdResult;
 use std::str::FromStr;
 
 use chrono::{DateTime, FixedOffset};
+use serde::{
+    {Deserialize, Deserializer, Serialize, Serializer},
+    de,
+    de::{MapAccess, SeqAccess, Unexpected, Visitor},
+    ser::{SerializeStruct, SerializeTuple},
+};
+use serde_json::*;
 use url::Url;
 use url_serde::{De, Ser};
 
@@ -406,10 +407,10 @@ mod tests {
     use chrono::{DateTime, FixedOffset};
     use url::Url;
 
-    use crate::messages::{
-        ActiveTarget, AlertManager, AlertManagers, ApiErr, ApiOk, ApiResult, Config, Data,
-        DroppedTarget, Expression, Instant, LabelsOrValues, Metric, Range, Sample, Series,
-        Snapshot, StringSample, TargetHealth, Targets,
+    use crate::result_types::{
+        ActiveTarget, AlertManager, AlertManagers, ApiErr, ApiOk, ApiResult,
+        Config, Data, DroppedTarget, Expression, Instant, LabelsOrValues, Metric,
+        Range, Sample, Series, Snapshot, StringSample, TargetHealth, Targets
     };
 
     #[test]
