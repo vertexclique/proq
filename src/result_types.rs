@@ -986,11 +986,11 @@ mod tests {
                         scrape_url: Url::parse("http://127.0.0.1:9090/metrics").unwrap(),
                         last_error: None,
                         last_scrape,
-                        health: TargetHealth::Up
-                    },],
+                        health: TargetHealth::Up,
+                    }, ],
                     dropped: vec![DroppedTarget {
                         discovered_labels: dropped_discovered_labels
-                    },],
+                    }, ],
                 })),
                 warnings: Vec::new(),
             })
@@ -1025,10 +1025,10 @@ mod tests {
                 data: Some(Data::AlertManagers(AlertManagers {
                     active: vec![AlertManager {
                         url: Url::parse("http://127.0.0.1:9090/api/v1/alerts").unwrap(),
-                    },],
+                    }, ],
                     dropped: vec![AlertManager {
                         url: Url::parse("http://127.0.0.1:9093/api/v1/alerts").unwrap(),
-                    },],
+                    }, ],
                 })),
                 warnings: Vec::new(),
             }),
