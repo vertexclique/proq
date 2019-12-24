@@ -3,7 +3,7 @@ use std::result;
 use url::ParseError;
 
 pub type ProqResult<T> = result::Result<T, ProqError>;
-pub type BoxedUnwrap = std::error::Error + Send + Sync;
+pub type BoxedUnwrap = dyn std::error::Error + Send + Sync;
 
 /// Error types of Proq
 #[derive(Fail, Debug)]
