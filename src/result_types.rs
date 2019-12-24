@@ -49,7 +49,6 @@ pub struct ApiErr {
     pub warnings: Vec<String>,
 }
 
-
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(untagged)]
 pub enum Data {
@@ -110,8 +109,8 @@ pub struct Sample {
 
 impl<'de> Deserialize<'de> for Sample {
     fn deserialize<D>(deserializer: D) -> StdResult<Self, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         struct VisitorImpl;
 
@@ -123,8 +122,8 @@ impl<'de> Deserialize<'de> for Sample {
             }
 
             fn visit_seq<A>(self, mut seq: A) -> StdResult<Self::Value, A::Error>
-                where
-                    A: SeqAccess<'de>,
+            where
+                A: SeqAccess<'de>,
             {
                 let epoch = seq
                     .next_element::<f64>()?
@@ -152,8 +151,8 @@ impl<'de> Deserialize<'de> for Sample {
 
 impl Serialize for Sample {
     fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let mut s = serializer.serialize_tuple(2)?;
         s.serialize_element(&self.epoch)?;
@@ -170,8 +169,8 @@ pub struct StringSample {
 
 impl<'de> Deserialize<'de> for StringSample {
     fn deserialize<D>(deserializer: D) -> StdResult<Self, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         struct VisitorImpl;
 
@@ -183,8 +182,8 @@ impl<'de> Deserialize<'de> for StringSample {
             }
 
             fn visit_seq<A>(self, mut seq: A) -> StdResult<Self::Value, A::Error>
-                where
-                    A: SeqAccess<'de>,
+            where
+                A: SeqAccess<'de>,
             {
                 let epoch = seq
                     .next_element::<f64>()?
@@ -203,8 +202,8 @@ impl<'de> Deserialize<'de> for StringSample {
 
 impl Serialize for StringSample {
     fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let mut s = serializer.serialize_tuple(2)?;
         s.serialize_element(&self.epoch)?;
@@ -236,18 +235,18 @@ pub struct ActiveTarget {
     #[serde(with = "url_serde")]
     pub scrape_url: Url,
     #[serde(
-    deserialize_with = "empty_string_is_none",
-    serialize_with = "none_to_empty_string"
+        deserialize_with = "empty_string_is_none",
+        serialize_with = "none_to_empty_string"
     )]
     pub last_error: Option<String>,
     #[serde(
-    deserialize_with = "rfc3339_to_date_time",
-    serialize_with = "date_time_to_rfc3339"
+        deserialize_with = "rfc3339_to_date_time",
+        serialize_with = "date_time_to_rfc3339"
     )]
     pub last_scrape: DateTime<FixedOffset>,
     #[serde(
-    deserialize_with = "deserialize_health",
-    serialize_with = "serialize_health"
+        deserialize_with = "deserialize_health",
+        serialize_with = "serialize_health"
     )]
     pub health: TargetHealth,
 }
@@ -333,8 +332,8 @@ pub struct AlertManager {
 
 impl<'de> Deserialize<'de> for AlertManager {
     fn deserialize<D>(deserializer: D) -> StdResult<AlertManager, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         // variant of: https://serde.rs/deserialize-struct.html
 
@@ -356,8 +355,8 @@ impl<'de> Deserialize<'de> for AlertManager {
             }
 
             fn visit_map<V>(self, mut map: V) -> StdResult<AlertManager, V::Error>
-                where
-                    V: MapAccess<'de>,
+            where
+                V: MapAccess<'de>,
             {
                 let mut url: Option<Url> = None;
                 while let Some(key) = map.next_key()? {
@@ -381,8 +380,8 @@ impl<'de> Deserialize<'de> for AlertManager {
 
 impl Serialize for AlertManager {
     fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let mut s = serializer.serialize_struct("AlertManager", 1)?;
         s.serialize_field("url", &Ser::new(&self.url))?;
