@@ -1,17 +1,18 @@
-use serde::{
-    de,
-    de::{MapAccess, SeqAccess, Unexpected, Visitor},
-    ser::{SerializeStruct, SerializeTuple},
-    {Deserialize, Deserializer, Serialize, Serializer},
-};
 use std::collections::HashMap;
 use std::error::Error;
-use std::fmt::Result as FmtResult;
 use std::fmt::{Display, Formatter};
+use std::fmt::Result as FmtResult;
 use std::result::Result as StdResult;
 use std::str::FromStr;
 
 use chrono::{DateTime, FixedOffset};
+use serde::{
+    {Deserialize, Deserializer, Serialize, Serializer},
+    de,
+    de::{MapAccess, SeqAccess, Unexpected, Visitor},
+    ser::{SerializeStruct, SerializeTuple},
+};
+use serde_json::*;
 use url::Url;
 use url_serde::{De, Ser};
 
@@ -406,10 +407,10 @@ mod tests {
     use chrono::{DateTime, FixedOffset};
     use url::Url;
 
-    use crate::messages::{
-        ActiveTarget, AlertManager, AlertManagers, ApiErr, ApiOk, ApiResult, Config, Data,
-        DroppedTarget, Expression, Instant, LabelsOrValues, Metric, Range, Sample, Series,
-        Snapshot, StringSample, TargetHealth, Targets,
+    use crate::result_types::{
+        ActiveTarget, AlertManager, AlertManagers, ApiErr, ApiOk, ApiResult,
+        Config, Data, DroppedTarget, Expression, Instant, LabelsOrValues, Metric,
+        Range, Sample, Series, Snapshot, StringSample, TargetHealth, Targets
     };
 
     #[test]
@@ -985,11 +986,11 @@ mod tests {
                         scrape_url: Url::parse("http://127.0.0.1:9090/metrics").unwrap(),
                         last_error: None,
                         last_scrape,
-                        health: TargetHealth::Up
-                    },],
+                        health: TargetHealth::Up,
+                    }, ],
                     dropped: vec![DroppedTarget {
                         discovered_labels: dropped_discovered_labels
-                    },],
+                    }, ],
                 })),
                 warnings: Vec::new(),
             })
@@ -1024,10 +1025,10 @@ mod tests {
                 data: Some(Data::AlertManagers(AlertManagers {
                     active: vec![AlertManager {
                         url: Url::parse("http://127.0.0.1:9090/api/v1/alerts").unwrap(),
-                    },],
+                    }, ],
                     dropped: vec![AlertManager {
                         url: Url::parse("http://127.0.0.1:9093/api/v1/alerts").unwrap(),
-                    },],
+                    }, ],
                 })),
                 warnings: Vec::new(),
             }),
