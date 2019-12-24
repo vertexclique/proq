@@ -16,6 +16,8 @@ use serde_json::*;
 use url::Url;
 use url_serde::{De, Ser};
 
+use crate::value_types::prometheus_types::*;
+
 // Mostly borrowed from:
 // https://github.com/allengeorge/prometheus-query/blob/master/src/messages.rs
 
@@ -133,9 +135,9 @@ impl<'de> Deserialize<'de> for Sample {
                     .ok_or_else(|| de::Error::missing_field("sample value"))?;
 
                 let value = match value {
-                    PROM_INFINITY => std::f64::INFINITY,
-                    PROM_NEGATIVE_INFINITY => std::f64::NEG_INFINITY,
-                    PROM_NAN => std::f64::NAN,
+                    PROQ_INFINITY => std::f64::INFINITY,
+                    PROQ_NEGATIVE_INFINITY => std::f64::NEG_INFINITY,
+                    PROQ_NAN => std::f64::NAN,
                     _ => value
                         .parse::<f64>()
                         .map_err(|_| de::Error::invalid_value(Unexpected::Str(value), &self))?,
@@ -402,6 +404,7 @@ pub struct Config {
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
+    use std::f64::INFINITY;
     use std::result::Result as StdResult;
 
     use chrono::{DateTime, FixedOffset};
@@ -410,7 +413,7 @@ mod tests {
     use crate::result_types::{
         ActiveTarget, AlertManager, AlertManagers, ApiErr, ApiOk, ApiResult,
         Config, Data, DroppedTarget, Expression, Instant, LabelsOrValues, Metric,
-        Range, Sample, Series, Snapshot, StringSample, TargetHealth, Targets
+        Range, Sample, Series, Snapshot, StringSample, TargetHealth, Targets,
     };
 
     #[test]
@@ -439,7 +442,7 @@ mod tests {
 
     #[test]
     fn should_deserialize_json_error_with_instant_and_warnings() -> StdResult<(), std::io::Error> {
-        let j = r#"
+        let expected_json = r#"
         {
             "status": "error",
             "error": "This is a strange error",
@@ -470,6 +473,7 @@ mod tests {
             }
         }
         "#;
+        let expected = serde_json::from_str::<ApiResult>(expected_json)?;
 
         let mut metric_1: HashMap<String, String> = HashMap::new();
         metric_1.insert("__name__".to_owned(), "up".to_owned());
@@ -481,35 +485,32 @@ mod tests {
         metric_2.insert("job".to_owned(), "node".to_owned());
         metric_2.insert("instance".to_owned(), "localhost:9100".to_owned());
 
-        let res = serde_json::from_str::<ApiResult>(j)?;
-        assert_eq!(
-            ApiResult::ApiErr(ApiErr {
-                error_type: "Weird".to_owned(),
-                error_message: "This is a strange error".to_owned(),
-                data: Some(Data::Expression(Expression::Instant(vec!(
-                    Instant {
-                        metric: Metric {
-                            labels: metric_1.clone(),
-                        },
-                        sample: Sample {
-                            epoch: 1435781451.781,
-                            value: 1 as f64,
-                        },
+        let actual = ApiResult::ApiErr(ApiErr {
+            error_type: "Weird".to_owned(),
+            error_message: "This is a strange error".to_owned(),
+            data: Some(Data::Expression(Expression::Instant(vec!(
+                Instant {
+                    metric: Metric {
+                        labels: metric_1.clone(),
                     },
-                    Instant {
-                        metric: Metric {
-                            labels: metric_2.clone(),
-                        },
-                        sample: Sample {
-                            epoch: 1435781451.781,
-                            value: 0 as f64,
-                        },
+                    sample: Sample {
+                        epoch: 1435781451.781,
+                        value: 1 as f64
                     },
-                )))),
-                warnings: vec!["You timed out, foo".to_owned()],
-            }),
-            res
-        );
+                },
+                Instant {
+                    metric: Metric {
+                        labels: metric_2.clone(),
+                    },
+                    sample: Sample {
+                        epoch: 1435781451.781,
+                        value: 0 as f64
+                    },
+                },
+            )))),
+            warnings: vec!["You timed out, foo".to_owned()],
+        });
+        assert_eq!(actual, expected);
 
         Ok(())
     }
