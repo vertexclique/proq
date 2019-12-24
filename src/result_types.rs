@@ -1,6 +1,5 @@
 use std::collections::HashMap;
-use std::error::Error;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Formatter};
 use std::fmt::Result as FmtResult;
 use std::result::Result as StdResult;
 use std::str::FromStr;
@@ -12,7 +11,6 @@ use serde::{
     de::{MapAccess, SeqAccess, Unexpected, Visitor},
     ser::{SerializeStruct, SerializeTuple},
 };
-use serde_json::*;
 use url::Url;
 use url_serde::{De, Ser};
 
@@ -404,7 +402,6 @@ pub struct Config {
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
-    use std::f64::INFINITY;
     use std::result::Result as StdResult;
 
     use chrono::{DateTime, FixedOffset};
