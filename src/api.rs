@@ -19,6 +19,7 @@ const PROQ_SERIES_URL: &str = "/api/v1/series";
 const PROQ_LABELS_URL: &str = "/api/v1/labels";
 const PROQ_TARGETS_URL: &str = "/api/v1/targets";
 const PROQ_RULES_URL: &str = "/api/v1/rules";
+const PROQ_ALERT_MANAGERS_URL: &str = "/api/v1/alertmanagers";
 macro_rules! PROQ_LABEL_VALUES_URL {
     () => {
         "/api/v1/label/{}/values"
@@ -174,6 +175,14 @@ impl ProqClient {
     pub async fn rules_with_type(&self, rule_type: ProqRulesType) -> ProqResult<ApiResult> {
         let query = RulesWithTypeRequest { rule_type };
         self.get(PROQ_RULES_URL, &query).await
+    }
+
+    pub async fn alert_managers(&self) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(PROQ_ALERT_MANAGERS_URL)?.to_string().as_str())?;
+        surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
     }
 
     pub(crate) fn get_slug(&self, slug: &str) -> ProqResult<Uri> {

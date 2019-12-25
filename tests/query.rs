@@ -203,3 +203,21 @@ fn proq_rules_with_type() {
         assert!(x)
     });
 }
+
+#[test]
+fn proq_alert_manager() {
+    futures::executor::block_on(async {
+        let x = match client().alert_managers().await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}

@@ -5,9 +5,9 @@ use chrono::{DateTime, FixedOffset};
 use url::Url;
 
 use proq::result_types::{
-    ActiveTarget, AlertManager, AlertManagers, ApiErr, ApiOk, ApiResult, Config, Data,
-    DroppedTarget, Expression, Instant, LabelsOrValues, Metric, Range, Sample, Series, Snapshot,
-    StringSample, TargetHealth, Targets,
+    ActiveTarget, Alert, AlertManager, AlertManagers, AlertState, ApiErr, ApiOk, ApiResult, Config,
+    Data, DroppedTarget, Expression, Instant, LabelsOrValues, Metric, Range, Rule, RuleGroups,
+    RuleType, Rules, Sample, Series, Snapshot, StringSample, TargetHealth, Targets,
 };
 
 #[test]
@@ -747,6 +747,123 @@ fn should_serialize_rust_prom_config() -> StdResult<(), std::io::Error> {
     }))?;
 
     dbg!(s);
+
+    Ok(())
+}
+
+#[test]
+fn should_deserialize_json_prom_rules() -> StdResult<(), std::io::Error> {
+    let j = r#"
+        {
+            "data": {
+                "groups": [
+                    {
+                        "rules": [
+                            {
+                                "alerts": [
+                                    {
+                                        "activeAt": "2018-07-04T20:27:12.60602144+02:00",
+                                        "annotations": {
+                                            "summary": "High request latency"
+                                        },
+                                        "labels": {
+                                            "alertname": "HighRequestLatency",
+                                            "severity": "page"
+                                        },
+                                        "state": "firing",
+                                        "value": "1e+00"
+                                    }
+                                ],
+                                "annotations": {
+                                    "summary": "High request latency"
+                                },
+                                "duration": 600,
+                                "health": "ok",
+                                "labels": {
+                                    "severity": "page"
+                                },
+                                "name": "HighRequestLatency",
+                                "query": "job:request_latency_seconds:mean5m{job=\"myjob\"} > 0.5",
+                                "type": "alerting"
+                            },
+                            {
+                                "health": "ok",
+                                "name": "job:http_inprogress_requests:sum",
+                                "query": "sum(http_inprogress_requests) by (job)",
+                                "type": "recording"
+                            }
+                        ],
+                        "file": "/rules.yaml",
+                        "interval": 60,
+                        "name": "example"
+                    }
+                ]
+            },
+            "status": "success"
+        }
+        "#;
+
+    let res = serde_json::from_str::<ApiResult>(j)?;
+
+    let mut data_groups_rules_annotations = HashMap::<String, String>::new();
+    data_groups_rules_annotations.insert(
+        String::from("summary"),
+        String::from("High request latency"),
+    );
+
+    let mut data_groups_rules_labels = HashMap::new();
+    data_groups_rules_labels.insert(String::from("severity"), String::from("page"));
+
+    let mut data_groups_rules_alert_labels = HashMap::new();
+    data_groups_rules_alert_labels.insert(
+        String::from("alertname"),
+        String::from("HighRequestLatency"),
+    );
+    data_groups_rules_alert_labels.insert(String::from("severity"), String::from("page"));
+
+    assert_eq!(
+        ApiResult::ApiOk(ApiOk {
+            data: Some(Data::Rules(Rules {
+                groups: vec![RuleGroups {
+                    rules: vec![
+                        Rule {
+                            alerts: Some(vec![Alert {
+                                active_at: String::from("2018-07-04T20:27:12.60602144+02:00"),
+                                annotations: Some(data_groups_rules_annotations.clone()),
+                                labels: Some(data_groups_rules_alert_labels),
+                                state: AlertState::FIRING,
+                                value: String::from("1e+00"),
+                            }]),
+                            annotations: Some(data_groups_rules_annotations),
+                            duration: Some(600),
+                            health: String::from("ok"),
+                            labels: Some(data_groups_rules_labels),
+                            name: String::from("HighRequestLatency"),
+                            query: String::from(
+                                "job:request_latency_seconds:mean5m{job=\"myjob\"} > 0.5"
+                            ),
+                            rule_type: RuleType::ALERTING
+                        },
+                        Rule {
+                            alerts: None,
+                            annotations: None,
+                            duration: None,
+                            health: String::from("ok"),
+                            labels: None,
+                            name: String::from("job:http_inprogress_requests:sum"),
+                            query: String::from("sum(http_inprogress_requests) by (job)"),
+                            rule_type: RuleType::RECORDING
+                        }
+                    ],
+                    file: String::from("/rules.yaml"),
+                    interval: 60,
+                    name: String::from("example")
+                }]
+            })),
+            warnings: Vec::new(),
+        }),
+        res
+    );
 
     Ok(())
 }
