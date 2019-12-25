@@ -59,7 +59,7 @@ fn proq_range_query() {
             e => {
                 dbg!(e);
                 false
-            }
+            },
         };
 
         assert!(x)
