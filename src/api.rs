@@ -15,6 +15,14 @@ use surf::*;
 const PROQ_INSTANT_QUERY_URL: &str = "/api/v1/query";
 const PROQ_RANGE_QUERY_URL: &str = "/api/v1/query_range";
 const PROQ_SERIES_URL: &str = "/api/v1/series";
+const PROQ_LABELS_URL: &str = "/api/v1/labels";
+const PROQ_TARGETS_URL: &str = "/api/v1/targets";
+const PROQ_RULES_URL: &str = "/api/v1/rules";
+macro_rules! PROQ_LABEL_VALUES_URL {
+    () => {
+        "/api/v1/label/{}/values"
+    };
+}
 
 #[derive(PartialEq)]
 pub enum ProqProtocol {
@@ -122,6 +130,43 @@ impl ProqClient {
         surf::post(url)
             .body_string(query)
             .set_mime(mime::APPLICATION_WWW_FORM_URLENCODED)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn label_names(&self) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(PROQ_LABELS_URL)?.to_string().as_str())?;
+        surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn label_values(&self, label_name: &str) -> ProqResult<ApiResult> {
+        let slug = format!(PROQ_LABEL_VALUES_URL!(), label_name);
+        let url: Url = Url::from_str(self.get_slug(slug.as_str())?.to_string().as_str())?;
+        surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn targets(&self) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(PROQ_TARGETS_URL)?.to_string().as_str())?;
+        surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn targets_with_state(&self, state: ProqTargetStates) -> ProqResult<ApiResult> {
+        let query = TargetsWithStatesRequest { state };
+        let url: Url = Url::from_str(self.get_slug(PROQ_TARGETS_URL)?.to_string().as_str())?;
+
+        surf::get(url)
+            .set_query(&query)
+            .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
             .recv_json()
             .await
             .map_err(|e| ProqError::GenericError(e.to_string()))

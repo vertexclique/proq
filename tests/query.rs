@@ -1,6 +1,7 @@
 use chrono::Utc;
 use once_cell::sync::OnceCell;
 use proq::api::{ProqClient, ProqProtocol};
+use proq::query_types::ProqTargetStates;
 use proq::result_types::ApiResult::ApiOk;
 use std::sync::Once;
 use std::time::Duration;
@@ -75,6 +76,82 @@ fn proq_series() {
         let selectors = vec!["up", "process_start_time_seconds{job=\"prometheus\"}"];
 
         let x = match client().series(selectors, start, Some(end)).await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}
+
+#[test]
+fn proq_labels() {
+    futures::executor::block_on(async {
+        let x = match client().label_names().await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}
+
+#[test]
+fn proq_label_values() {
+    futures::executor::block_on(async {
+        let query_label = "version";
+
+        let x = match client().label_values(query_label).await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}
+
+#[test]
+fn proq_targets() {
+    futures::executor::block_on(async {
+        let x = match client().targets().await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}
+
+#[test]
+fn proq_targets_with_state() {
+    futures::executor::block_on(async {
+        let state_filer = ProqTargetStates::ACTIVE;
+
+        let x = match client().targets_with_state(state_filer).await.unwrap() {
             ApiOk(r) => {
                 dbg!(r);
                 true
