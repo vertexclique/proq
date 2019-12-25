@@ -58,6 +58,16 @@ impl ProqClient {
             .map_err(|e| ProqError::GenericError(e.to_string()))
     }
 
+    async fn post(&self, endpoint: &str, payload: String) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(&endpoint)?.to_string().as_str())?;
+        surf::post(url)
+            .body_string(payload)
+            .set_mime(mime::APPLICATION_WWW_FORM_URLENCODED)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
     pub async fn instant_query(
         &self,
         query: &str,
@@ -99,8 +109,6 @@ impl ProqClient {
             end: end_time.as_ref().map(|et| DateTime::timestamp(et)),
         };
 
-        let url: Url = Url::from_str(self.get_slug(PROQ_SERIES_URL)?.to_string().as_str())?;
-
         let mut uencser = url::form_urlencoded::Serializer::new(String::new());
         // TODO: Remove the allocation overhead of AsRef.
         for s in query.selectors {
@@ -114,12 +122,7 @@ impl ProqClient {
             .map(|s| uencser.append_pair("end", s.to_string().as_str()));
         let query = uencser.finish();
 
-        surf::post(url)
-            .body_string(query)
-            .set_mime(mime::APPLICATION_WWW_FORM_URLENCODED)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.post(PROQ_SERIES_URL, query).await
     }
 
     pub(crate) fn get_slug(&self, slug: &str) -> ProqResult<Uri> {
