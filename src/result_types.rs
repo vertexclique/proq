@@ -10,10 +10,10 @@ use std::str::FromStr;
 
 use chrono::{DateTime, FixedOffset};
 use serde::{
-    {Deserialize, Deserializer, Serialize, Serializer},
     de,
     de::{MapAccess, SeqAccess, Unexpected, Visitor},
     ser::{SerializeStruct, SerializeTuple},
+    {Deserialize, Deserializer, Serialize, Serializer},
 };
 use url::Url;
 use url_serde::{De, Ser};

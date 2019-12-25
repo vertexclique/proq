@@ -12,8 +12,8 @@ use crate::result_types::ApiResult;
 use std::time::Duration;
 use surf::*;
 
-const PROQ_INSTANT_QUERY_URL: &'static str = "/api/v1/query";
-const PROQ_RANGE_QUERY_URL: &'static str = "/api/v1/query_range";
+const PROQ_INSTANT_QUERY_URL: &str = "/api/v1/query";
+const PROQ_RANGE_QUERY_URL: &str = "/api/v1/query_range";
 
 #[derive(PartialEq)]
 pub enum ProqProtocol {
@@ -37,7 +37,7 @@ impl ProqClient {
         protocol: ProqProtocol,
         query_timeout: Option<Duration>,
     ) -> ProqResult<Self> {
-        let host = Url::from_str(host).map_err(|e| ProqError::UrlParseError(e))?;
+        let host = Url::from_str(host).map_err(ProqError::UrlParseError)?;
 
         Ok(Self {
             host,
@@ -67,11 +67,12 @@ impl ProqClient {
             .map_err(|e| ProqError::GenericError(e.to_string()))
     }
 
-    pub async fn range_query(&self,
-                             query: &str,
-                             start_time: Option<DateTime<Utc>>,
-                             end_time: Option<DateTime<Utc>>,
-                             step: Option<Duration>
+    pub async fn range_query(
+        &self,
+        query: &str,
+        start_time: Option<DateTime<Utc>>,
+        end_time: Option<DateTime<Utc>>,
+        step: Option<Duration>,
     ) -> ProqResult<ApiResult> {
         let query = RangeQuery {
             query: query.into(),
@@ -102,6 +103,6 @@ impl ProqClient {
             .authority(self.host.as_str())
             .path_and_query(slug)
             .build()
-            .map_err(|e| ProqError::UrlBuildError(e))
+            .map_err(ProqError::UrlBuildError)
     }
 }
