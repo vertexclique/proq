@@ -60,7 +60,14 @@ impl ProqClient {
         })
     }
 
-    async fn get(&self, endpoint: &str, query: &impl Serialize) -> ProqResult<ApiResult> {
+    async fn get_basic(&self, url: Url) -> ProqResult<ApiResult> {
+        surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    async fn get_query(&self, endpoint: &str, query: &impl Serialize) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(&endpoint)?.to_string().as_str())?;
         surf::get(url)
             .set_query(&query)
@@ -90,7 +97,7 @@ impl ProqClient {
             time: eval_time.as_ref().map(|et| DateTime::timestamp(et)),
             timeout: self.query_timeout.map(|t| t.as_secs().to_string()),
         };
-        self.get(PROQ_INSTANT_QUERY_URL, &query).await
+        self.get_query(PROQ_INSTANT_QUERY_URL, &query).await
     }
 
     pub async fn range_query(
@@ -106,7 +113,7 @@ impl ProqClient {
             end: end_time.as_ref().map(|et| DateTime::timestamp(et)),
             step: step.map(|s| s.as_secs_f64()),
         };
-        self.get(PROQ_RANGE_QUERY_URL, &query).await
+        self.get_query(PROQ_RANGE_QUERY_URL, &query).await
     }
 
     pub async fn series(
@@ -139,77 +146,53 @@ impl ProqClient {
 
     pub async fn label_names(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_LABELS_URL)?.to_string().as_str())?;
-        surf::get(url)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get_basic(url).await
     }
 
     pub async fn label_values(&self, label_name: &str) -> ProqResult<ApiResult> {
         let slug = format!(PROQ_LABEL_VALUES_URL!(), label_name);
         let url: Url = Url::from_str(self.get_slug(slug.as_str())?.to_string().as_str())?;
-        surf::get(url)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get_basic(url).await
     }
 
     pub async fn targets(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_TARGETS_URL)?.to_string().as_str())?;
-        surf::get(url)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get_basic(url).await
     }
 
     pub async fn targets_with_state(&self, state: ProqTargetStates) -> ProqResult<ApiResult> {
         let query = TargetsWithStatesRequest { state };
-        self.get(PROQ_TARGETS_URL, &query).await
+        self.get_query(PROQ_TARGETS_URL, &query).await
     }
 
     pub async fn rules(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_RULES_URL)?.to_string().as_str())?;
-        surf::get(url)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get_basic(url).await
     }
 
     pub async fn rules_with_type(&self, rule_type: ProqRulesType) -> ProqResult<ApiResult> {
         let query = RulesWithTypeRequest { rule_type };
-        self.get(PROQ_RULES_URL, &query).await
+        self.get_query(PROQ_RULES_URL, &query).await
     }
 
     pub async fn alerts(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_ALERTS_URL)?.to_string().as_str())?;
-        surf::get(url)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get_basic(url).await
     }
 
     pub async fn alert_managers(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_ALERT_MANAGERS_URL)?.to_string().as_str())?;
-        surf::get(url)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get_basic(url).await
     }
 
     pub async fn config(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_STATUS_CONFIG_URL)?.to_string().as_str())?;
-        surf::get(url)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get_basic(url).await
     }
 
     pub async fn flags(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_STATUS_FLAGS_URL)?.to_string().as_str())?;
-        surf::get(url)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get_basic(url).await
     }
 
     pub(crate) fn get_slug(&self, slug: &str) -> ProqResult<Uri> {
