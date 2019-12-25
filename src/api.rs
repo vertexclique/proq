@@ -7,13 +7,13 @@ use http::{uri, Uri};
 use chrono::offset::Utc;
 use chrono::DateTime;
 
-use crate::query_types::InstantQuery;
+use crate::query_types::{InstantQuery, RangeQuery};
 use crate::result_types::ApiResult;
 use std::time::Duration;
 use surf::*;
 
-const PROQ_INSTANT_QUERY_URL: &'static str = "/api/v1/query";
-const PROQ_RANGE_QUERY_URL: &'static str = "/api/v1/query_range";
+const PROQ_INSTANT_QUERY_URL: &str = "/api/v1/query";
+const PROQ_RANGE_QUERY_URL: &str = "/api/v1/query_range";
 
 #[derive(PartialEq)]
 pub enum ProqProtocol {
@@ -37,7 +37,7 @@ impl ProqClient {
         protocol: ProqProtocol,
         query_timeout: Option<Duration>,
     ) -> ProqResult<Self> {
-        let host = Url::from_str(host).map_err(|e| ProqError::UrlParseError(e))?;
+        let host = Url::from_str(host).map_err(ProqError::UrlParseError)?;
 
         Ok(Self {
             host,
@@ -67,8 +67,28 @@ impl ProqClient {
             .map_err(|e| ProqError::GenericError(e.to_string()))
     }
 
-    pub async fn range_query(&self, query: &str) -> ProqResult<ApiResult> {
-        unimplemented!()
+    pub async fn range_query(
+        &self,
+        query: &str,
+        start_time: Option<DateTime<Utc>>,
+        end_time: Option<DateTime<Utc>>,
+        step: Option<Duration>,
+    ) -> ProqResult<ApiResult> {
+        let query = RangeQuery {
+            query: query.into(),
+            start: start_time.as_ref().map(|et| DateTime::timestamp(et)),
+            end: end_time.as_ref().map(|et| DateTime::timestamp(et)),
+            step: step.map(|s| s.as_secs_f64()),
+        };
+
+        let url: Url = Url::from_str(self.get_slug(PROQ_RANGE_QUERY_URL)?.to_string().as_str())?;
+
+        surf::get(url)
+            .set_query(&query)
+            .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
     }
 
     pub(crate) fn get_slug(&self, slug: &str) -> ProqResult<Uri> {
@@ -83,6 +103,6 @@ impl ProqClient {
             .authority(self.host.as_str())
             .path_and_query(slug)
             .build()
-            .map_err(|e| ProqError::UrlBuildError(e))
+            .map_err(ProqError::UrlBuildError)
     }
 }

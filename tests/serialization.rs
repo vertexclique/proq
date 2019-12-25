@@ -5,9 +5,9 @@ use chrono::{DateTime, FixedOffset};
 use url::Url;
 
 use proq::result_types::{
-    ActiveTarget, AlertManager, AlertManagers, ApiErr, ApiOk, ApiResult, Config,
-    Data, DroppedTarget, Expression, Instant, LabelsOrValues, Metric, Range,
-    Sample, Series, Snapshot, StringSample, TargetHealth, Targets
+    ActiveTarget, AlertManager, AlertManagers, ApiErr, ApiOk, ApiResult, Config, Data,
+    DroppedTarget, Expression, Instant, LabelsOrValues, Metric, Range, Sample, Series, Snapshot,
+    StringSample, TargetHealth, Targets,
 };
 
 #[test]
@@ -82,7 +82,7 @@ fn should_deserialize_json_error_with_instant_and_warnings() -> StdResult<(), st
     let actual = ApiResult::ApiErr(ApiErr {
         error_type: "Weird".to_owned(),
         error_message: "This is a strange error".to_owned(),
-        data: Some(Data::Expression(Expression::Instant(vec!(
+        data: Some(Data::Expression(Expression::Instant(vec![
             Instant {
                 metric: Metric {
                     labels: metric_1.clone(),
@@ -101,7 +101,7 @@ fn should_deserialize_json_error_with_instant_and_warnings() -> StdResult<(), st
                     value: 0 as f64,
                 },
             },
-        )))),
+        ]))),
         warnings: vec!["You timed out, foo".to_owned()],
     });
     assert_eq!(actual, expected);
@@ -582,10 +582,10 @@ fn should_deserialize_json_prom_targets() -> StdResult<(), std::io::Error> {
                     last_error: None,
                     last_scrape,
                     health: TargetHealth::Up,
-                }, ],
+                },],
                 dropped: vec![DroppedTarget {
                     discovered_labels: dropped_discovered_labels
-                }, ],
+                },],
             })),
             warnings: Vec::new(),
         })
@@ -620,10 +620,10 @@ fn should_deserialize_json_prom_alert_managers() -> StdResult<(), std::io::Error
             data: Some(Data::AlertManagers(AlertManagers {
                 active: vec![AlertManager {
                     url: Url::parse("http://127.0.0.1:9090/api/v1/alerts").unwrap(),
-                }, ],
+                },],
                 dropped: vec![AlertManager {
                     url: Url::parse("http://127.0.0.1:9093/api/v1/alerts").unwrap(),
-                }, ],
+                },],
             })),
             warnings: Vec::new(),
         }),
