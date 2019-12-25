@@ -99,7 +99,7 @@ impl ProqClient {
         end_time: Option<DateTime<Utc>>,
     ) -> ProqResult<ApiResult> {
         let query = SeriesRequest {
-            selectors: selectors.iter().map(|s| s.to_string()).collect(),
+            selectors: selectors.iter().map(|s| (*s).to_string()).collect(),
             start: start_time.as_ref().map(|et| DateTime::timestamp(et)),
             end: end_time.as_ref().map(|et| DateTime::timestamp(et)),
         };
