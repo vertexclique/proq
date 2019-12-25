@@ -43,8 +43,28 @@ jobs:
           args: --all --bins --examples --tests
 
       - name: tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all
+        env:
+          PROMETHEUS_VERSION: "v2.15.1"
+        run: |
+          CONTAINER="$(docker run --detach --publish 9090:9090 prom/prometheus:$PROMETHEUS_VERSION)"
+          cargo test --all
+          docker stop --time 0 "${CONTAINER}"
 
+  check_fmt_and_docs:
+      name: Checking fmt and docs
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@master
+
+        - name: Setup
+          uses: actions-rs/toolchain@v1
+          with:
+            toolchain: stable
+            default: true
+            components: rustfmt
+
+        - name: fmt
+          run: cargo fmt --all -- --check
+
+        - name: doc
+          run: cargo doc
