@@ -56,6 +56,7 @@ pub enum Data {
     Series(Series),
     LabelsOrValues(LabelsOrValues),
     Targets(Targets),
+    Rules(Rules),
     AlertManagers(AlertManagers),
     Config(Config),
     Snapshot(Snapshot),
@@ -397,4 +398,56 @@ pub struct Snapshot {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct Config {
     pub yaml: String,
+}
+
+#[derive(PartialEq, Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum AlertState {
+    INACTIVE,
+    PENDING,
+    FIRING,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct Rules {
+    pub groups: Vec<RuleGroups>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct RuleGroups {
+    pub rules: Vec<Rule>,
+    pub file: String,
+    pub interval: i64,
+    pub name: String,
+}
+
+#[derive(PartialEq, Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum RuleType {
+    RECORDING,
+    ALERTING,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Rule {
+    pub alerts: Option<Vec<Alert>>,
+    pub annotations: Option<HashMap<String, String>>,
+    pub duration: Option<i64>,
+    pub labels: Option<HashMap<String, String>>,
+    pub health: String,
+    pub name: String,
+    pub query: String,
+    #[serde(rename = "type")]
+    pub rule_type: RuleType,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Alert {
+    #[serde(default, rename = "activeAt")]
+    pub active_at: String,
+    pub annotations: Option<HashMap<String, String>>,
+    pub labels: Option<HashMap<String, String>>,
+    pub state: AlertState,
+    pub value: String,
 }
