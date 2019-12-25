@@ -57,6 +57,7 @@ pub enum Data {
     LabelsOrValues(LabelsOrValues),
     Targets(Targets),
     Rules(Rules),
+    Alerts(Alerts),
     AlertManagers(AlertManagers),
     Config(Config),
     Snapshot(Snapshot),
@@ -450,4 +451,10 @@ pub struct Alert {
     pub labels: Option<HashMap<String, String>>,
     pub state: AlertState,
     pub value: String,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct Alerts {
+    alerts: Vec<Alert>,
 }
