@@ -20,6 +20,8 @@ const PROQ_LABELS_URL: &str = "/api/v1/labels";
 const PROQ_TARGETS_URL: &str = "/api/v1/targets";
 const PROQ_RULES_URL: &str = "/api/v1/rules";
 const PROQ_ALERT_MANAGERS_URL: &str = "/api/v1/alertmanagers";
+const PROQ_STATUS_CONFIG_URL: &str = "/api/v1/status/config";
+const PROQ_STATUS_FLAGS_URL: &str = "/api/v1/status/config";
 macro_rules! PROQ_LABEL_VALUES_URL {
     () => {
         "/api/v1/label/{}/values"
@@ -179,6 +181,22 @@ impl ProqClient {
 
     pub async fn alert_managers(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_ALERT_MANAGERS_URL)?.to_string().as_str())?;
+        surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn config(&self) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(PROQ_STATUS_CONFIG_URL)?.to_string().as_str())?;
+        surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn flags(&self) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(PROQ_STATUS_FLAGS_URL)?.to_string().as_str())?;
         surf::get(url)
             .recv_json()
             .await
