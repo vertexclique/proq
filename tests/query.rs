@@ -165,3 +165,21 @@ fn proq_targets_with_state() {
         assert!(x)
     });
 }
+
+#[test]
+fn proq_rules() {
+    futures::executor::block_on(async {
+        let x = match client().rules().await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}

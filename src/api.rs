@@ -163,6 +163,14 @@ impl ProqClient {
         self.get(PROQ_TARGETS_URL, &query).await
     }
 
+    pub async fn rules(&self) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(PROQ_RULES_URL)?.to_string().as_str())?;
+        surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
     pub(crate) fn get_slug(&self, slug: &str) -> ProqResult<Uri> {
         let proto = if self.protocol == ProqProtocol::HTTP {
             "http"
