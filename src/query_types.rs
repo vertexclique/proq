@@ -49,3 +49,19 @@ pub struct TargetsWithStatesRequest {
     /// Requested target state filter
     pub state: ProqTargetStates,
 }
+
+#[derive(PartialEq, Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum ProqRulesType {
+    /// Rule type filtered by Alert
+    ALERT,
+    /// Rule type filtered by REcord
+    RECORD,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RulesWithTypeRequest {
+    /// Requested target state filter
+    #[serde(rename = "type")]
+    pub rule_type: ProqRulesType,
+}
