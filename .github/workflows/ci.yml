@@ -43,7 +43,9 @@ jobs:
           args: --all --bins --examples --tests
 
       - name: tests
+        env:
+          PROMETHEUS_VERSION: "v2.15.1"
         run: |
-          CONTAINER="$(docker run --detach --publish 9090:9090 prom/prometheus)"
+          CONTAINER="$(docker run --detach --publish 9090:9090 prom/prometheus:$PROMETHEUS_VERSION)"
           cargo test --all
           docker stop --time 0 "${CONTAINER}"
