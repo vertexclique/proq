@@ -1,16 +1,17 @@
-use ::url::Url;
 use std::str::FromStr;
+use std::time::Duration;
 
-use super::errors::*;
-use http::{uri, Uri};
-
+use ::url::Url;
 use chrono::offset::Utc;
 use chrono::DateTime;
+use http::{uri, Uri};
+use serde::Serialize;
+use surf::*;
 
 use crate::query_types::*;
 use crate::result_types::ApiResult;
-use std::time::Duration;
-use surf::*;
+
+use super::errors::*;
 
 const PROQ_INSTANT_QUERY_URL: &str = "/api/v1/query";
 const PROQ_RANGE_QUERY_URL: &str = "/api/v1/query_range";
@@ -55,6 +56,26 @@ impl ProqClient {
         })
     }
 
+    async fn get(&self, endpoint: &str, query: &impl Serialize) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(&endpoint)?.to_string().as_str())?;
+        surf::get(url)
+            .set_query(&query)
+            .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    async fn post(&self, endpoint: &str, payload: String) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(&endpoint)?.to_string().as_str())?;
+        surf::post(url)
+            .body_string(payload)
+            .set_mime(mime::APPLICATION_WWW_FORM_URLENCODED)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
     pub async fn instant_query(
         &self,
         query: &str,
@@ -65,15 +86,7 @@ impl ProqClient {
             time: eval_time.as_ref().map(|et| DateTime::timestamp(et)),
             timeout: self.query_timeout.map(|t| t.as_secs().to_string()),
         };
-
-        let url: Url = Url::from_str(self.get_slug(PROQ_INSTANT_QUERY_URL)?.to_string().as_str())?;
-
-        surf::get(url)
-            .set_query(&query)
-            .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get(PROQ_INSTANT_QUERY_URL, &query).await
     }
 
     pub async fn range_query(
@@ -89,15 +102,7 @@ impl ProqClient {
             end: end_time.as_ref().map(|et| DateTime::timestamp(et)),
             step: step.map(|s| s.as_secs_f64()),
         };
-
-        let url: Url = Url::from_str(self.get_slug(PROQ_RANGE_QUERY_URL)?.to_string().as_str())?;
-
-        surf::get(url)
-            .set_query(&query)
-            .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get(PROQ_RANGE_QUERY_URL, &query).await
     }
 
     pub async fn series(
@@ -112,8 +117,6 @@ impl ProqClient {
             end: end_time.as_ref().map(|et| DateTime::timestamp(et)),
         };
 
-        let url: Url = Url::from_str(self.get_slug(PROQ_SERIES_URL)?.to_string().as_str())?;
-
         let mut uencser = url::form_urlencoded::Serializer::new(String::new());
         // TODO: Remove the allocation overhead of AsRef.
         for s in query.selectors {
@@ -127,12 +130,7 @@ impl ProqClient {
             .map(|s| uencser.append_pair("end", s.to_string().as_str()));
         let query = uencser.finish();
 
-        surf::post(url)
-            .body_string(query)
-            .set_mime(mime::APPLICATION_WWW_FORM_URLENCODED)
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.post(PROQ_SERIES_URL, query).await
     }
 
     pub async fn label_names(&self) -> ProqResult<ApiResult> {
@@ -162,14 +160,7 @@ impl ProqClient {
 
     pub async fn targets_with_state(&self, state: ProqTargetStates) -> ProqResult<ApiResult> {
         let query = TargetsWithStatesRequest { state };
-        let url: Url = Url::from_str(self.get_slug(PROQ_TARGETS_URL)?.to_string().as_str())?;
-
-        surf::get(url)
-            .set_query(&query)
-            .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get(PROQ_TARGETS_URL, &query).await
     }
 
     pub(crate) fn get_slug(&self, slug: &str) -> ProqResult<Uri> {
