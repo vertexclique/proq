@@ -160,14 +160,7 @@ impl ProqClient {
 
     pub async fn targets_with_state(&self, state: ProqTargetStates) -> ProqResult<ApiResult> {
         let query = TargetsWithStatesRequest { state };
-        let url: Url = Url::from_str(self.get_slug(PROQ_TARGETS_URL)?.to_string().as_str())?;
-
-        surf::get(url)
-            .set_query(&query)
-            .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
-            .recv_json()
-            .await
-            .map_err(|e| ProqError::GenericError(e.to_string()))
+        self.get(PROQ_TARGETS_URL, &query).await
     }
 
     pub(crate) fn get_slug(&self, slug: &str) -> ProqResult<Uri> {
