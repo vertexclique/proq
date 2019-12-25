@@ -118,7 +118,7 @@ impl ProqClient {
         };
 
         let mut uencser = url::form_urlencoded::Serializer::new(String::new());
-        // TODO: Remove the allocation overhead of AsRef.
+        // TODO: Remove the allocation overhead from AsRef.
         for s in query.selectors {
             uencser.append_pair("match[]", s.as_str());
         }
@@ -169,6 +169,11 @@ impl ProqClient {
             .recv_json()
             .await
             .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn rules_with_type(&self, rule_type: ProqRulesType) -> ProqResult<ApiResult> {
+        let query = RulesWithTypeRequest { rule_type };
+        self.get(PROQ_RULES_URL, &query).await
     }
 
     pub(crate) fn get_slug(&self, slug: &str) -> ProqResult<Uri> {
