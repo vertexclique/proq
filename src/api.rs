@@ -7,13 +7,14 @@ use http::{uri, Uri};
 use chrono::offset::Utc;
 use chrono::DateTime;
 
-use crate::query_types::{InstantQuery, RangeQuery};
+use crate::query_types::*;
 use crate::result_types::ApiResult;
 use std::time::Duration;
 use surf::*;
 
 const PROQ_INSTANT_QUERY_URL: &str = "/api/v1/query";
 const PROQ_RANGE_QUERY_URL: &str = "/api/v1/query_range";
+const PROQ_SERIES_URL: &str = "/api/v1/series";
 
 #[derive(PartialEq)]
 pub enum ProqProtocol {
@@ -86,6 +87,41 @@ impl ProqClient {
         surf::get(url)
             .set_query(&query)
             .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn series(
+        &self,
+        selectors: Vec<&str>,
+        start_time: Option<DateTime<Utc>>,
+        end_time: Option<DateTime<Utc>>,
+    ) -> ProqResult<ApiResult> {
+        let query = SeriesRequest {
+            selectors: selectors.iter().map(|s| s.to_string()).collect(),
+            start: start_time.as_ref().map(|et| DateTime::timestamp(et)),
+            end: end_time.as_ref().map(|et| DateTime::timestamp(et)),
+        };
+
+        let url: Url = Url::from_str(self.get_slug(PROQ_SERIES_URL)?.to_string().as_str())?;
+
+        let mut uencser = url::form_urlencoded::Serializer::new(String::new());
+        // TODO: Remove the allocation overhead of AsRef.
+        for s in query.selectors {
+            uencser.append_pair("match[]", s.as_str());
+        }
+        query
+            .start
+            .map(|s| uencser.append_pair("start", s.to_string().as_str()));
+        query
+            .end
+            .map(|s| uencser.append_pair("end", s.to_string().as_str()));
+        let query = uencser.finish();
+
+        surf::post(url)
+            .body_string(query)
+            .set_mime(mime::APPLICATION_WWW_FORM_URLENCODED)
             .recv_json()
             .await
             .map_err(|e| ProqError::GenericError(e.to_string()))
