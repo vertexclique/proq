@@ -221,3 +221,39 @@ fn proq_alert_manager() {
         assert!(x)
     });
 }
+
+#[test]
+fn proq_config() {
+    futures::executor::block_on(async {
+        let x = match client().config().await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}
+
+#[test]
+fn proq_flags() {
+    futures::executor::block_on(async {
+        let x = match client().flags().await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}
