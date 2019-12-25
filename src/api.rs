@@ -15,6 +15,7 @@ use surf::*;
 const PROQ_INSTANT_QUERY_URL: &str = "/api/v1/query";
 const PROQ_RANGE_QUERY_URL: &str = "/api/v1/query_range";
 const PROQ_SERIES_URL: &str = "/api/v1/series";
+const PROQ_LABELS_URL: &str = "/api/v1/labels";
 
 #[derive(PartialEq)]
 pub enum ProqProtocol {
@@ -122,6 +123,14 @@ impl ProqClient {
         surf::post(url)
             .body_string(query)
             .set_mime(mime::APPLICATION_WWW_FORM_URLENCODED)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn label_names(&self) -> ProqResult<ApiResult> {
+        let url: Url = Url::from_str(self.get_slug(PROQ_LABELS_URL)?.to_string().as_str())?;
+        surf::get(url)
             .recv_json()
             .await
             .map_err(|e| ProqError::GenericError(e.to_string()))

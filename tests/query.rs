@@ -88,3 +88,21 @@ fn proq_series() {
         assert!(x)
     });
 }
+
+#[test]
+fn proq_labels() {
+    futures::executor::block_on(async {
+        let x = match client().label_names().await.unwrap() {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}
