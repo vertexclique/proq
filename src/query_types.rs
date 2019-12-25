@@ -1,6 +1,4 @@
 use serde::*;
-use std::time::Duration;
-
 
 #[derive(Serialize, Deserialize)]
 pub struct InstantQuery {
