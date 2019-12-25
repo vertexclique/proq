@@ -44,7 +44,7 @@ fn proq_instant_query() {
 fn proq_range_query() {
     futures::executor::block_on(async {
         let end = Utc::now();
-        let start = Some(end - chrono::Duration::hours(1));
+        let start = Some(end - chrono::Duration::minutes(1));
         let step = Some(Duration::from_secs_f64(1.5));
 
         let x = match client()
@@ -52,6 +52,29 @@ fn proq_range_query() {
             .await
             .unwrap()
         {
+            ApiOk(r) => {
+                dbg!(r);
+                true
+            }
+            e => {
+                dbg!(e);
+                false
+            }
+        };
+
+        assert!(x)
+    });
+}
+
+#[test]
+fn proq_series() {
+    futures::executor::block_on(async {
+        let end = Utc::now();
+        let start = Some(end - chrono::Duration::hours(1));
+
+        let selectors = vec!["up", "process_start_time_seconds{job=\"prometheus\"}"];
+
+        let x = match client().series(selectors, start, Some(end)).await.unwrap() {
             ApiOk(r) => {
                 dbg!(r);
                 true
