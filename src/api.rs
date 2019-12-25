@@ -2,8 +2,8 @@ use std::str::FromStr;
 use std::time::Duration;
 
 use ::url::Url;
-use chrono::DateTime;
 use chrono::offset::Utc;
+use chrono::DateTime;
 use http::{uri, Uri};
 use serde::Serialize;
 use surf::*;
