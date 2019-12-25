@@ -17,6 +17,7 @@ const PROQ_RANGE_QUERY_URL: &str = "/api/v1/query_range";
 const PROQ_SERIES_URL: &str = "/api/v1/series";
 const PROQ_LABELS_URL: &str = "/api/v1/labels";
 const PROQ_TARGETS_URL: &str = "/api/v1/targets";
+const PROQ_RULES_URL: &str = "/api/v1/rules";
 macro_rules! PROQ_LABEL_VALUES_URL {
     () => {
         "/api/v1/label/{}/values"
@@ -154,6 +155,18 @@ impl ProqClient {
     pub async fn targets(&self) -> ProqResult<ApiResult> {
         let url: Url = Url::from_str(self.get_slug(PROQ_TARGETS_URL)?.to_string().as_str())?;
         surf::get(url)
+            .recv_json()
+            .await
+            .map_err(|e| ProqError::GenericError(e.to_string()))
+    }
+
+    pub async fn targets_with_state(&self, state: ProqTargetStates) -> ProqResult<ApiResult> {
+        let query = TargetsWithStatesRequest { state };
+        let url: Url = Url::from_str(self.get_slug(PROQ_TARGETS_URL)?.to_string().as_str())?;
+
+        surf::get(url)
+            .set_query(&query)
+            .map_err(|e| ProqError::HTTPClientError(Box::new(e)))?
             .recv_json()
             .await
             .map_err(|e| ProqError::GenericError(e.to_string()))

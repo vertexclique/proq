@@ -32,3 +32,20 @@ pub struct SeriesRequest {
     /// End timestamp for the range query
     pub end: Option<i64>,
 }
+
+#[derive(PartialEq, Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum ProqTargetStates {
+    /// Target state filtered by Active state
+    ACTIVE,
+    /// Target state filtered by Dropped state
+    DROPPED,
+    /// Target state without any filtering
+    ANY,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TargetsWithStatesRequest {
+    /// Requested target state filter
+    pub state: ProqTargetStates,
+}
