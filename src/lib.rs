@@ -28,10 +28,7 @@
 //! ```
 //!
 
-#![doc(
-html_logo_url = "https://github.com/vertexclique/proq/raw/master/img/proq.png"
-)]
-
+#![doc(html_logo_url = "https://github.com/vertexclique/proq/raw/master/img/proq.png")]
 // Force missing implementations
 //#![warn(missing_docs)]
 //#![warn(missing_debug_implementations)]
