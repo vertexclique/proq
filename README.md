@@ -12,7 +12,7 @@
 [![Rust Documentation](https://img.shields.io/badge/api-rustdoc-blue.svg)](https://docs.rs/proq/)
 </div>
 
-This crate provides async client API for Prometheus Query API.
+This crate provides async client for Prometheus Query API.
 All queries can be written with PromQL notation.
 Timeout and protocol configuration can be passed at the client initiation time.
 
