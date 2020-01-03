@@ -16,8 +16,13 @@ This crate provides async client API for Prometheus Query API.
 All queries can be written with PromQL notation.
 Timeout and protocol configuration can be passed at the client initiation time.
 
+#### Adding as dependency
+```toml
+[dependencies]
+proq = "0.1"
+```
 
-### Basic Usage
+#### Basic Usage
 ```rust
 use proq::prelude::*;
 use std::time::Duration;
