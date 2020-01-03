@@ -3,7 +3,7 @@
 </h1>
 <div align="center">
  <strong>
-   Proq – Idiomatic Prometheus Query (PromQL) Client for Rust.
+   Proq – Idiomatic Async Prometheus Query (PromQL) Client for Rust.
  </strong>
 <hr>
 

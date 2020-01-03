@@ -1,5 +1,5 @@
 //!
-//! Idiomatic Prometheus Query (PromQL) Client for Rust.
+//! Idiomatic Async Prometheus Query (PromQL) Client for Rust.
 //!
 //! This crate provides general client API for Prometheus Query API.
 //! All queries can be written with PromQL notation.
@@ -33,8 +33,8 @@ html_logo_url = "https://github.com/vertexclique/proq/raw/master/img/proq.png"
 )]
 
 // Force missing implementations
-#![warn(missing_docs)]
-#![warn(missing_debug_implementations)]
+//#![warn(missing_docs)]
+//#![warn(missing_debug_implementations)]
 #![forbid(unsafe_code)]
 
 pub mod api;

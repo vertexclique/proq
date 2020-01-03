@@ -7,8 +7,9 @@ authors = [
 ]
 homepage = "https://github.com/vertexclique/proq"
 repository = "https://github.com/vertexclique/proq"
+description = "Idiomatic Async Prometheus Query (PromQL) Client for Rust."
 documentation = "https://docs.rs/bastion"
-readme = "readme.md"
+readme = "README.md"
 license = "Apache-2.0/MIT"
 edition = "2018"
 exclude = [
