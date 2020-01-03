@@ -27,6 +27,9 @@
 //!}
 //! ```
 //!
+//! **For extensive documentation about which methods are available and what they are doing you can see
+//! the [api::ProqClient] documentation.**
+//!
 
 #![doc(html_logo_url = "https://github.com/vertexclique/proq/raw/master/img/proq.png")]
 // Force missing implementations
