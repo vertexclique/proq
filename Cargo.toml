@@ -1,6 +1,6 @@
 [package]
 name = "proq"
-version = "0.1.0"
+version = "0.1.1-alpha.0"
 authors = [
     "Mahmut Bulut <vertexclique@gmail.com>",
     "Patrice Billaut <pbillaut@pm.me>"
