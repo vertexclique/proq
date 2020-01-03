@@ -3,11 +3,34 @@ name = "proq"
 version = "0.1.0"
 authors = [
     "Mahmut Bulut <vertexclique@gmail.com>",
-    "Patrice Billaut <chief.mango.officer@pm.me>"
+    "Patrice Billaut <pbillaut@pm.me>"
 ]
+homepage = "https://github.com/vertexclique/proq"
+repository = "https://github.com/vertexclique/proq"
+documentation = "https://docs.rs/bastion"
+readme = "readme.md"
+license = "Apache-2.0/MIT"
 edition = "2018"
+exclude = [
+	".github/*",
+	"examples/*",
+	"graphstore/*",
+	"tests/*",
+	"img/*",
+	"ci/*",
+	"benches/*",
+	"doc/*",
+	"*.png",
+	"*.dot",
+	"*.yml",
+	"*.toml",
+	"*.md"
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 chrono = "0.4.10"

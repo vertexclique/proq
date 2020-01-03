@@ -1,7 +1,10 @@
-///
-/// Mostly borrowed from:
-/// https://github.com/allengeorge/prometheus-query/blob/master/src/messages.rs
-///
+//!
+//! Response types to Proq from Prometheus.
+//!
+//! Return types are mostly borrowed from:
+//! https://github.com/allengeorge/prometheus-query/blob/master/src/messages.rs
+//!
+//! extended with filtered and unfiltered methods and new beta endpoints.
 use std::collections::HashMap;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
