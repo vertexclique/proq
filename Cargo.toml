@@ -5,10 +5,12 @@ authors = [
     "Mahmut Bulut <vertexclique@gmail.com>",
     "Patrice Billaut <pbillaut@pm.me>"
 ]
+keywords = ["prometheus", "metrics-gathering", "metrics", "aggregation", "async"]
+categories = ["asynchronous", "api-bindings", "web-programming"]
 homepage = "https://github.com/vertexclique/proq"
 repository = "https://github.com/vertexclique/proq"
 description = "Idiomatic Async Prometheus Query (PromQL) Client for Rust."
-documentation = "https://docs.rs/bastion"
+documentation = "https://docs.rs/proq"
 readme = "README.md"
 license = "Apache-2.0/MIT"
 edition = "2018"
