@@ -38,4 +38,4 @@ fn main() {
 }
 ```
 
-For more information please head to the documentation.
+For more information please head to the [Documentation](https://docs.rs/proq/).
