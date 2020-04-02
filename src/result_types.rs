@@ -459,5 +459,5 @@ pub struct Alert {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Alerts {
-    alerts: Vec<Alert>,
+    pub alerts: Vec<Alert>,
 }
